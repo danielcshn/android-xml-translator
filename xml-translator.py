@@ -27,6 +27,8 @@ SUPPORTED_LANGUAGES = {
     'ukrainian': 'uk', 'urdu': 'ur', 'uyghur': 'ug', 'uzbek': 'uz', 'vietnamese': 'vi', 'welsh': 'cy', 'xhosa': 'xh', 'yiddish': 'yi', 'yoruba': 'yo', 'zulu': 'zu'
 }
 
+TOP_LANGUAGES = ['zh-CN', 'es', 'en', 'hi', 'ar', 'pt', 'bn', 'ru', 'ja', 'de']
+
 def show_languages():
     print("Supported languages:")
     for lang, code in SUPPORTED_LANGUAGES.items():
@@ -45,7 +47,7 @@ def translate_strings(strings, src_lang, target_langs, delay):
         for lang in target_langs:
             translated_text = GoogleTranslator(source=src_lang, target=lang).translate(text)
             translations[lang][key] = translated_text
-            time.sleep(delay)  # Espera entre consultas
+            time.sleep(delay)
     
     return translations
 
@@ -54,7 +56,8 @@ def create_translated_xml(base_tree, base_root, translations, output_dir):
         os.makedirs(output_dir)
     
     for lang, translated_strings in translations.items():
-        lang_dir = os.path.join(output_dir, f'values-{lang}')
+        lang_dir_name = lang.replace('-', '-r')
+        lang_dir = os.path.join(output_dir, f'values-{lang_dir_name}')
         os.makedirs(lang_dir, exist_ok=True)
         output_path = os.path.join(lang_dir, 'strings.xml')
         
@@ -63,7 +66,6 @@ def create_translated_xml(base_tree, base_root, translations, output_dir):
             if key in translated_strings:
                 elem.text = translated_strings[key]
         
-        # base_tree.write(output_path, encoding='utf-8', xml_declaration=True)
         with open(output_path, "wb") as f:
             f.write(b"<?xml version='1.0' encoding='utf-8'?>\n")
             base_tree.write(f, encoding="utf-8")
@@ -72,7 +74,7 @@ def main():
     parser = argparse.ArgumentParser(description="Translate Android strings.xml file.")
     parser.add_argument("-f", "--file", help="Path to the strings.xml file")
     parser.add_argument("-i", "--input_lang", help="Source language code")
-    parser.add_argument("-o", "--output_langs", help="Comma-separated target languages")
+    parser.add_argument("-o", "--output_langs", help="Comma-separated target languages or 'TOP10'")
     parser.add_argument("-sl", "--show-languages", action="store_true", help="Show supported languages")
     parser.add_argument("-t", "--timeout", type=float, default=0, help="Time in seconds to wait between translations")
     
@@ -88,13 +90,16 @@ def main():
     if args.input_lang not in SUPPORTED_LANGUAGES.values():
         parser.error(f"Invalid input language: {args.input_lang}")
 
-    output_langs = args.output_langs.split(',')
-    for lang in output_langs:
-        if lang not in SUPPORTED_LANGUAGES.values():
-            parser.error(f"Invalid output language: {lang}")
+    if args.output_langs.upper() == "TOP10":
+        output_langs = TOP_LANGUAGES
+    else:
+        output_langs = args.output_langs.split(',')
+        for lang in output_langs:
+            if lang not in SUPPORTED_LANGUAGES.values():
+                parser.error(f"Invalid output language: {lang}")
     
     base_tree, base_root, strings = parse_xml(args.file)
-    translations = translate_strings(strings, args.input_lang, output_langs)
+    translations = translate_strings(strings, args.input_lang, output_langs, args.timeout)
     create_translated_xml(base_tree, base_root, translations, os.path.join(os.path.dirname(args.file), 'translates'))
     print("Translations saved.")
 
