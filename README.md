@@ -37,13 +37,25 @@ pip install -r requirements.txt
 ---
 
 ## 💡 Arguments: 
- **args**                   | **Description**                                  | **Must / Optional**
---------------------------- | ------------------------------------------------ | -------------------
-`-f`, `--file`              | Path to the strings.xml file.                    | Must
-`-i`, `--input_lang`        | Source language code.                            | Must
-`-o`, `--output_langs`      | Output languages. Optional Comma-separated.      | Must
-`-sl`, `--show-languages`   | Show supported languages.                        | Optional
-`-t`, `--timeout`           | Time to wait between translations. Default 0s.   | Optional
+ **args**                   | **Description**                                            | **Must / Optional**
+--------------------------- | ---------------------------------------------------------- | -------------------
+`-f`, `--file`              | Path to the strings.xml file.                              | Must
+`-i`, `--input_lang`        | Source language code.                                      | Must
+`-o`, `--output_langs`      | Output languages. Optional Comma-separated or 'TOP10'      | Must
+`-sl`, `--show-languages`   | Show supported languages.                                  | Optional
+`-t`, `--timeout`           | Time to wait between translations. Default 0s.             | Optional
+
+<b>TOP10:</b>
+- zh-CN = Chinese (simplified)
+- es = Spanish
+- en = English
+- hi = Hindi
+- ar = Arabic
+- pt = Portuguese
+- bn = Bengali
+- ru = Russian
+- ja = Japanese
+- de = German
 
 ## 🛠️ Executing examples
 ```
@@ -51,4 +63,6 @@ python xml-translator.py -f C:\dir\strings.xml -sl
 python xml-translator.py -f C:\dir\strings.xml -i en -o es
 python xml-translator.py -f C:\dir\strings.xml -i en -o es,fr
 python xml-translator.py -f C:\dir\strings.xml -i en -o es,fr -t 5
+python xml-translator.py -f C:\dir\strings.xml -i en -o TOP10
+python xml-translator.py -f C:\dir\strings.xml -i en -o TOP10 -t 2
 ```
